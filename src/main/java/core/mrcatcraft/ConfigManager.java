@@ -33,7 +33,6 @@ public class ConfigManager {
 
     // Equipment
     private Map<Integer, String> equipmentThresholds;
-    private double enchantMultiplier;
 
     // Potion effects
     private double potionChancePerLevel;
@@ -108,11 +107,10 @@ public class ConfigManager {
         // Equipment thresholds
         equipmentThresholds = new LinkedHashMap<>();
         if (config.contains("level_system.equipment.thresholds")) {
-            config.getConfigurationSection("level_system.equipment.thresholds")
+            Objects.requireNonNull(config.getConfigurationSection("level_system.equipment.thresholds"))
                     .getValues(false)
                     .forEach((key, value) -> equipmentThresholds.put(Integer.parseInt(key), value.toString()));
         }
-        enchantMultiplier = config.getDouble("level_system.equipment.enchant_multiplier", 0.2);
 
         potionChancePerLevel = config.getDouble("level_system.potion_effects.chance_per_level", 0.5);
         potionDurationMultiplier = config.getDouble("level_system.potion_effects.duration_multiplier", 1.0);
@@ -181,7 +179,6 @@ public class ConfigManager {
     public double getSpeedPercentPerLevel() { return speedPercentPerLevel; }
     public double getKnockbackResistPerLevel() { return knockbackResistPerLevel; }
     public Map<Integer, String> getEquipmentThresholds() { return equipmentThresholds; }
-    public double getEnchantMultiplier() { return enchantMultiplier; }
     public double getPotionChancePerLevel() { return potionChancePerLevel; }
     public double getPotionDurationMultiplier() { return potionDurationMultiplier; }
     public int getPotionAmplifierBase() { return potionAmplifierBase; }
@@ -202,7 +199,7 @@ public class ConfigManager {
     public boolean isDynamicSizeEnabled() { return dynamicSizeEnabled; }
     public double getDynamicSizeMin() { return dynamicSizeMin; }
     public double getDynamicSizeMax() { return dynamicSizeMax; }
-    public boolean isCustomNameEnabled() { return customNameEnabled; }
+    public boolean isCustomNameEnabled() { return !customNameEnabled; }
     public boolean isCustomNameVisible() { return customNameVisible; }
     public String getCustomNameFormat() { return customNameFormat; }
     public String getCustomNameBossFormat() { return customNameBossFormat; }

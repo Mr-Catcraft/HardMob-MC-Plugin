@@ -4,7 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.*;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -19,17 +21,14 @@ import java.util.concurrent.ThreadLocalRandom;
  * Core listener that intercepts mob spawns, damage, and death events
  * to apply HardMob logic.
  */
-public class MobModifierListener implements Listener {
-
-    private final HardMob plugin;
+public record MobModifierListener(HardMob plugin) implements Listener {
 
     /**
      * Constructs the listener.
      *
      * @param plugin the main plugin instance
      */
-    public MobModifierListener(HardMob plugin) {
-        this.plugin = plugin;
+    public MobModifierListener {
     }
 
     /**

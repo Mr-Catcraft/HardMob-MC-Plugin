@@ -13,21 +13,21 @@ import java.util.concurrent.ThreadLocalRandom;
  * and applies full equipment sets based on the mob's level and the
  * thresholds defined in config.yml.
  */
-public class EliteMobManager {
-
-    private final HardMob plugin;
+public record EliteMobManager(HardMob plugin) {
 
     /**
      * Constructs the elite mob manager.
      *
      * @param plugin the main plugin instance
      */
-    public EliteMobManager(HardMob plugin) {
-        this.plugin = plugin;
+    public EliteMobManager {
     }
 
-    /** Called on /hardmob reload; currently no state to clear. */
-    public void reload() {}
+    /**
+     * Called on /hardmob reload; currently no state to clear.
+     */
+    public void reload() {
+    }
 
     /**
      * Decides whether a mob should become elite based on the configured spawn chance.

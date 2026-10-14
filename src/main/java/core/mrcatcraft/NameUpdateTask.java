@@ -15,7 +15,7 @@ public class NameUpdateTask extends BukkitRunnable {
     @Override
     public void run() {
         HardMob plugin = HardMob.getInstance();
-        if (!plugin.getConfigManager().isCustomNameEnabled()) return;
+        if (plugin.getConfigManager().isCustomNameEnabled()) return;
 
         for (World world : plugin.getServer().getWorlds()) {
             for (LivingEntity entity : world.getEntitiesByClass(LivingEntity.class)) {

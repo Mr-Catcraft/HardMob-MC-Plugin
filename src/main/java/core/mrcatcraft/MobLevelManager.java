@@ -10,6 +10,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -68,19 +69,19 @@ public class MobLevelManager {
         int maxLvl = calculateMaxLevel(world);
         String dist = plugin.getConfigManager().getDistribution();
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        switch (dist) {
-            case "uniform":
-                return random.nextInt(1, maxLvl + 1);
-            case "weighted_low":
+        return switch (dist) {
+            case "uniform" -> random.nextInt(1, maxLvl + 1);
+            case "weighted_low" -> {
                 // Squaring a uniform random value makes lower levels more likely
                 double rLow = random.nextDouble();
-                return 1 + (int) (rLow * rLow * (maxLvl - 1));
-            case "weighted_high":
+                yield 1 + (int) (rLow * rLow * (maxLvl - 1));
+            }
+            case "weighted_high" -> {
                 double rHigh = random.nextDouble();
-                return maxLvl - (int) (rHigh * rHigh * (maxLvl - 1));
-            default:
-                return 1;
-        }
+                yield maxLvl - (int) (rHigh * rHigh * (maxLvl - 1));
+            }
+            default -> 1;
+        };
     }
 
     /**
@@ -180,7 +181,7 @@ public class MobLevelManager {
         // Avoid overwriting a better existing effect
         if (mob.hasPotionEffect(type)) {
             PotionEffect existing = mob.getPotionEffect(type);
-            if (existing.getAmplifier() >= amplifier && existing.getDuration() >= durationTicks) {
+            if (Objects.requireNonNull(existing).getAmplifier() >= amplifier && existing.getDuration() >= durationTicks) {
                 return;
             }
         }

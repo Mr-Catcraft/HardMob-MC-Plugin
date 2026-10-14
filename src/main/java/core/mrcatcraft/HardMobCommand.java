@@ -7,12 +7,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -24,18 +27,16 @@ import java.util.stream.Collectors;
  * </ul>
  * Also provides tab completion for subcommands, mob types, level values, and the "elite" flag.
  */
-public class HardMobCommand implements CommandExecutor, TabCompleter {
+public record HardMobCommand(HardMob plugin) implements CommandExecutor, TabCompleter {
 
     private static final List<String> SUBCOMMANDS = List.of("reload", "spawn", "spawnboss");
-    private final HardMob plugin;
 
     /**
      * Constructs the command executor.
      *
      * @param plugin the main plugin instance
      */
-    public HardMobCommand(HardMob plugin) {
-        this.plugin = plugin;
+    public HardMobCommand {
     }
 
     @Override
@@ -45,17 +46,15 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        switch (args[0].toLowerCase()) {
-            case "reload":
-                return handleReload(sender);
-            case "spawn":
-                return handleSpawn(sender, args);
-            case "spawnboss":
-                return handleSpawnBoss(sender, args);
-            default:
+        return switch (args[0].toLowerCase()) {
+            case "reload" -> handleReload(sender);
+            case "spawn" -> handleSpawn(sender, args);
+            case "spawnboss" -> handleSpawnBoss(sender, args);
+            default -> {
                 sendUsage(sender, label);
-                return true;
-        }
+                yield true;
+            }
+        };
     }
 
     @Override
@@ -66,7 +65,7 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && (args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("spawnboss"))) {
             List<String> mobs = Arrays.stream(EntityType.values())
                     .filter(EntityType::isAlive)
-                    .filter(t -> Mob.class.isAssignableFrom(t.getEntityClass()))
+                    .filter(t -> Mob.class.isAssignableFrom(Objects.requireNonNull(t.getEntityClass())))
                     .map(EntityType::name)
                     .collect(Collectors.toList());
             return partialMatch(args[1], mobs);
@@ -94,7 +93,9 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
                 .collect(Collectors.toList());
     }
 
-    /** Handles the reload subcommand. */
+    /**
+     * Handles the reload subcommand.
+     */
     private boolean handleReload(CommandSender sender) {
         if (!sender.hasPermission("hardmob.reload")) {
             sender.sendMessage(ChatColor.RED + "No permission.");
@@ -105,7 +106,9 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    /** Handles the spawn subcommand. */
+    /**
+     * Handles the spawn subcommand.
+     */
     private boolean handleSpawn(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Only players can spawn mobs.");
@@ -141,7 +144,9 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    /** Handles the spawnboss subcommand (always elite). */
+    /**
+     * Handles the spawnboss subcommand (always elite).
+     */
     private boolean handleSpawnBoss(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Only players can spawn mobs.");
@@ -185,10 +190,11 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
     private EntityType parseMobType(String name) {
         try {
             EntityType type = EntityType.valueOf(name.toUpperCase());
-            if (type.isAlive() && Mob.class.isAssignableFrom(type.getEntityClass())) {
+            if (type.isAlive() && Mob.class.isAssignableFrom(Objects.requireNonNull(type.getEntityClass()))) {
                 return type;
             }
-        } catch (IllegalArgumentException ignored) {}
+        } catch (IllegalArgumentException ignored) {
+        }
         return null;
     }
 
@@ -208,8 +214,8 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
             double size = elite
                     ? plugin.getConfigManager().getEliteSize()
                     : plugin.getConfigManager().getDynamicSizeMin()
-                      + Math.random() * (plugin.getConfigManager().getDynamicSizeMax() - plugin.getConfigManager().getDynamicSizeMin());
-            mob.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(size);
+                    + Math.random() * (plugin.getConfigManager().getDynamicSizeMax() - plugin.getConfigManager().getDynamicSizeMin());
+            Objects.requireNonNull(mob.getAttribute(Attribute.GENERIC_SCALE)).setBaseValue(size);
         }
         if (elite && plugin.getConfigManager().isEliteAlwaysEquipped()) {
             plugin.getEliteMobManager().applyEliteEquipment(mob, level);
@@ -217,7 +223,9 @@ public class HardMobCommand implements CommandExecutor, TabCompleter {
         NameUpdater.updateName(mob);
     }
 
-    /** Sends a help message with available subcommands. */
+    /**
+     * Sends a help message with available subcommands.
+     */
     private void sendUsage(CommandSender sender, String label) {
         sender.sendMessage(ChatColor.YELLOW + "=== HardMob Help ===");
         sender.sendMessage("/" + label + " reload");

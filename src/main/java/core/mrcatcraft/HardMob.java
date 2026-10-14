@@ -2,6 +2,8 @@ package core.mrcatcraft;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Objects;
+
 /**
  * Main plugin class for HardMob.
  * <p>
@@ -38,7 +40,7 @@ public class HardMob extends JavaPlugin {
         eliteMobManager = new EliteMobManager(this);
 
         getServer().getPluginManager().registerEvents(new MobModifierListener(this), this);
-        getCommand("hardmob").setExecutor(new HardMobCommand(this));
+        Objects.requireNonNull(getCommand("hardmob")).setExecutor(new HardMobCommand(this));
 
         // Refresh custom names every second to keep health display accurate
         nameUpdateTask = new NameUpdateTask();

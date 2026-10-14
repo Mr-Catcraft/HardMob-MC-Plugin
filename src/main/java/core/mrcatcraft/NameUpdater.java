@@ -6,6 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 /**
@@ -30,7 +31,7 @@ public class NameUpdater {
         HardMob plugin = HardMob.getInstance();
         ConfigManager cfg = plugin.getConfigManager();
 
-        if (!cfg.isCustomNameEnabled()) return;
+        if (cfg.isCustomNameEnabled()) return;
         if (!(entity instanceof Mob mob)) return;
 
         int level = plugin.getMobLevelManager().getLevelFromMob(mob);
@@ -44,7 +45,7 @@ public class NameUpdater {
         }
         lastHealthCache.put(mob, health);
 
-        double maxHealth = mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        double maxHealth = Objects.requireNonNull(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
         String healthStr = formatNumber(health);
         String maxHealthStr = formatNumber(maxHealth);
         String mobName = formatMobName(mob.getType().name());
